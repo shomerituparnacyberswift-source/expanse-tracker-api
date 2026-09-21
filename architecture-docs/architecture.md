@@ -19,7 +19,7 @@ Backend REST API for the **Expense Tracker** application. It exposes domain reso
 | Web framework | Express 5 | `express` ^5.2.1 |
 | Configuration | `dotenv` | Env vars loaded via `.env` |
 | Dev runner | `nodemon` | Auto-restart in development |
-| Persistence | MongoDB (planned) | Via Mongoose (not yet installed) |
+| Persistence | MongoDB Atlas (cloud cluster) | Via Mongoose (to be installed); DB `expense_tracker_db` |
 | Language | JavaScript | No TypeScript in this repo |
 
 ### Installed Dependencies
@@ -41,7 +41,7 @@ Dev:
 | Server bootstrap | **DONE** (`index.js`) |
 | `.env` + port config | **DONE** (default `8000`) |
 | Health/root route | **DONE** (`GET /`) |
-| MongoDB connection | Planned |
+| MongoDB connection | **Configured** (Atlas cluster URI in `.env`; Mongoose driver planned) |
 | Route definitions/controllers | Planned |
 | Validation & error handling | Planned |
 | Auth | Planned |
@@ -114,7 +114,7 @@ expanse-tracker-api/
    app.listen(PORT)  →  console.log('Server running on http://localhost:8000')
 ```
 
-Planned insert: MongoDB connection (async) between config load and `app.listen`, so the server only accepts requests once the DB is ready.
+Planned insert: MongoDB connection (async) between config load and `app.listen` — connect via Mongoose to the Atlas URI in `.env` (DB `expense_tracker_db`), so the server only accepts requests once the DB is ready.
 
 ---
 
@@ -175,9 +175,11 @@ Registered in order in `index.js`:
 
 ### Persistence
 
-- MongoDB via Mongoose.
-- Connection string from `process.env.MONGODB_URI`; never hard-coded.
-- Connection centralized in `src/config/db.js`; exported function called during startup.
+- MongoDB Atlas cluster **Cluster0** (`cluster0.cdftphh.mongodb.net`), application database **`expense_tracker_db`**.
+- Driver: Mongoose (not yet installed — next step).
+- Connection string from `process.env.MONGODB_URI`; never hard-coded in source.
+- Connection centralized in `src/config/db.js`; exported function called during startup before `app.listen`.
+- Atlas user: `shomerituparnacyberswift_db_user` (SRV scheme, db user with read/write on `expense_tracker_db`). Password lives only in `.env`.
 
 ### Models
 
@@ -217,7 +219,7 @@ const categorySchema = new Schema({
 
 ```
 PORT=8000
-MONGODB_URI=mongodb://localhost:27017/expanse_tracker
+MONGODB_URI=mongodb+srv://<db_user>:<password>@cluster0.cdftphh.mongodb.net/expense_tracker_db
 ```
 
 Never commit `.env` or real credentials. Confirm `.gitignore` excludes:
